@@ -2,7 +2,12 @@
 var express = require("express"),
   app = express(),
   bodyParser = require("body-parser"),
-  methodOverride = require("method-override");
+  methodOverride = require("method-override"),
+  cookieParser = require("cookie-parser"),
+  session = require("express-session"),
+  passport = require("passport"),
+  LocalStrategy = require("passport-local").Strategy;
+
 // require Post model
 var db = require("./models"),
   Post = db.Post;
@@ -12,6 +17,21 @@ app.use(bodyParser.urlencoded({ extended: true, }));
 
 // serve static files from public folder
 app.use(express.static(__dirname + "/public"));
+
+// auth middleware
+app.use(cookieParser());
+app.use(session({
+  secret: 'supersecretkey', // change this!
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// passport configuration
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // set view engine to ejs
 app.set("view engine", "ejs");
