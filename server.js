@@ -11,6 +11,7 @@ var express = require("express"),
 // require Post model
 var db = require("./models"),
   Post = db.Post;
+  User = db.User;
 
 // configure bodyParser (for receiving form data)
 app.use(bodyParser.urlencoded({ extended: true, }));
