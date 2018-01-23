@@ -53,18 +53,22 @@ app.get("/", function (req, res) {
 });
 
 app.get("/posts/:id", function(req, res) {
-  Post.findById(req.params.id, function (err, foundPost) {
-    if (err) {
-      res.status(500).json({ error: err.message, });
-    } else {
-      res.render("posts/show", { post: foundPost, });
-    }
+  Post.findById(req.params.id)
+    .populate("user")
+    .exec(function (err, foundPost) {
+      console.log(foundPost);
+      if (err) {
+        res.status(500).json({ error: err.message, });
+      } else {
+        res.render("posts/show", { post: foundPost, });
+      }
   });
 });
 
 app.post("/posts", function(req, res) {
   if (req.user) { // check if user is logged in
     var newPost = new Post(req.body);
+    newPost.user = req.user;
     // save new post in db
     newPost.save(function (err) {
       if (err) {

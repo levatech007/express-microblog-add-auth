@@ -42,7 +42,9 @@
 
                 <!-- post label (title) -->
                 <span class="label label-default"><%= post.title %></span>
-
+                <% if (post.user) { %>
+                  <p><%= post.user.username %></p>
+                <% } %>
                 <!-- post description -->
                 <%= post.description %>
 
