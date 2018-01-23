@@ -203,6 +203,41 @@ app.delete("/api/posts/:id", function (req, res) {
   });
 });
 
+// authorization routes
+// show signup page
+app.get("/signup", function(req, res) {
+  res.render("signup");
+});
+
+// sign up, create new account (user)
+app.post("/signup", function(req, res) {
+  User.register(new User({username: req.body.username}), req.body.password,
+    function (err, newUser) {
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/");
+      });
+    }
+  );
+});
+
+// show login page
+app.get("/login", function(req, res) {
+  res.render("login");
+});
+
+// log user in
+app.post("/login", passport.authenticate("local"), function(req, res) {
+  console.log(req.user);
+  res.redirect("/");
+});
+
+// log user out
+app.get("/logout", function (req, res) {
+  console.log("BEFORE logout", JSON.stringify(req.user));
+  req.logout();
+  console.log("AFTER logout", JSON.stringify(req.user));
+  res.redirect("/");
+});
 
 // listen on port 3000
 app.listen(3000, function() {
