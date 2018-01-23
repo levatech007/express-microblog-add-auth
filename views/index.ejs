@@ -34,6 +34,19 @@
     </div>
   </div>
 
+  <!-- nav bar for login -->
+  <div class="container">
+    <div class="row">
+      <% if(!user) { %>
+        <a href="/login">Log in</a>
+        <a href="/signup">Sign up</a>
+      <% } else { %>
+        <div>Welcome, <%= user.username %>!</div>
+        <a href="/logout">Log out</a>
+      <% } %>
+    </div>
+  </div>
+
   <!-- page content -->
   <div class="container">
     <div class="row">

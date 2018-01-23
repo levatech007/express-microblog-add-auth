@@ -47,7 +47,7 @@ app.get("/", function (req, res) {
     if (err) {
       res.status(500).json({ error: err.message, });
     } else {
-      res.render("index", { posts: allPosts, });
+      res.render("index", { posts: allPosts, user: req.user, });
     }
   });
 });
@@ -63,54 +63,65 @@ app.get("/posts/:id", function(req, res) {
 });
 
 app.post("/posts", function(req, res) {
-  var newPost = new Post(req.body);
-
-  // save new post in db
-  newPost.save(function (err) {
-    if (err) {
-      res.status(500).json({ error: err.message, });
-    } else {
-      res.redirect("/");
-    }
-  });
+  if (req.user) { // check if user is logged in
+    var newPost = new Post(req.body);
+    // save new post in db
+    newPost.save(function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message, });
+      } else {
+        res.redirect("/");
+      }
+    });
+  } else {
+    res.status(401).send({error: "Not Authorized! Login first!"});
+  }
 });
 
 // update post
 app.put("/posts/:id", function (req, res) {
-  // get post id from url params (`req.params`)
-  var postId = req.params.id;
+  if (req.user) {
+    // get post id from url params (`req.params`)
+    var postId = req.params.id;
 
-  // find post in db by id
-  Post.findOne({ _id: postId, }, function (err, foundPost) {
-    if (err) {
-      res.status(500).json({ error: err.message, });
-    } else {
-      // update the posts's attributes
-      foundPost.title = req.body.title || foundPost.title;
-      foundPost.description = req.body.description || foundPost.description;
+    // find post in db by id
+    Post.findOne({ _id: postId, }, function (err, foundPost) {
+      if (err) {
+        res.status(500).json({ error: err.message, });
+      } else {
+        // update the posts's attributes
+        foundPost.title = req.body.title || foundPost.title;
+        foundPost.description = req.body.description || foundPost.description;
 
-      // save updated post in db
-      foundPost.save(function (err, savedPost) {
-        if (err) {
-          res.status(500).json({ error: err.message, });
-        } else {
-          res.redirect("/posts/" + savedPost._id);
-        }
-      });
-    }
-  });
+        // save updated post in db
+        foundPost.save(function (err, savedPost) {
+          if (err) {
+            res.status(500).json({ error: err.message, });
+          } else {
+            res.redirect("/posts/" + savedPost._id);
+          }
+        });
+      }
+    });
+  } else {
+    res.status(401).send({error: "Not Authorized! Login first!"});
+  }
 });
 
 
 // delete post
 app.delete("/posts/:id", function (req, res) {
-  // get post id from url params (`req.params`)
-  var postId = req.params.id;
+  if (req.user) {
+    // get post id from url params (`req.params`)
+    var postId = req.params.id;
 
-  // find post in db by id and remove
-  Post.findOneAndRemove({ _id: postId, }, function () {
-    res.redirect("/");
-  });
+    // find post in db by id and remove
+    Post.findOneAndRemove({ _id: postId, }, function () {
+      res.redirect("/");
+    });
+  } else {
+    res.status(401).send({error: "Not Authorized! Login first!"});
+  }
 });
 
 
