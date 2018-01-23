@@ -85,12 +85,14 @@ app.post("/posts", function(req, res) {
 // update post
 app.put("/posts/:id", function (req, res) {
   if (req.user) {
-    // get post id from url params (`req.params`)
-    var postId = req.params.id;
 
     // find post in db by id
-    Post.findOne({ _id: postId, }, function (err, foundPost) {
-      if (err) {
+    Post.findOne(req.params.id)
+      .populate("user")
+      .exec(function (err, foundPost) {
+      if (req.user != user) {
+        res.status(401).send({error: "Not Authorized! Login first!"});
+      } else if (err) {
         res.status(500).json({ error: err.message, });
       } else {
         // update the posts's attributes
@@ -116,16 +118,18 @@ app.put("/posts/:id", function (req, res) {
 // delete post
 app.delete("/posts/:id", function (req, res) {
   if (req.user) {
-    // get post id from url params (`req.params`)
-    var postId = req.params.id;
-
     // find post in db by id and remove
-    Post.findOneAndRemove({ _id: postId, }, function () {
-      res.redirect("/");
-    });
-  } else {
-    res.status(401).send({error: "Not Authorized! Login first!"});
-  }
+    db.Post.findOneAndRemove(req.params)
+      .populate('user')
+      .exec(function (err, deletedPost) {
+        if (req.user != user) {
+          res.status(401).send({error: "Not Authorized! Login first!"});
+        } else {
+          res.redirect("/");
+        };
+      });
+  };
+  res.status(401).send({error: "Not Authorized! Login first!"});
 });
 
 
