@@ -85,12 +85,14 @@ app.post("/posts", function(req, res) {
 // update post
 app.put("/posts/:id", function (req, res) {
   if (req.user) {
-
+    console.log(req.user);
     // find post in db by id
     Post.findOne(req.params.id)
       .populate("user")
       .exec(function (err, foundPost) {
-      if (req.user != user) {
+        console.log(foundPost);
+
+      if (req.user != Post.user) {
         res.status(401).send({error: "Not Authorized! Login first!"});
       } else if (err) {
         res.status(500).json({ error: err.message, });
@@ -128,7 +130,7 @@ app.delete("/posts/:id", function (req, res) {
           res.redirect("/");
         };
       });
-  };
+    };
   res.status(401).send({error: "Not Authorized! Login first!"});
 });
 
